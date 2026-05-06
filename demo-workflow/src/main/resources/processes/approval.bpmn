@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+
+  <bpmn:process id="approval-process" name="表单数据审批流程" isExecutable="true">
+
+    <bpmn:startEvent id="StartEvent" name="开始">
+      <bpmn:outgoing>Flow_start_to_approve</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="ApproveTask" name="审批" camunda:assignee="${assignee}">
+      <bpmn:incoming>Flow_start_to_approve</bpmn:incoming>
+      <bpmn:outgoing>Flow_approve_to_gateway</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway" name="审批结果">
+      <bpmn:incoming>Flow_approve_to_gateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_approved</bpmn:outgoing>
+      <bpmn:outgoing>Flow_rejected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:sequenceFlow id="Flow_start_to_approve" sourceRef="StartEvent" targetRef="ApproveTask"/>
+
+    <bpmn:sequenceFlow id="Flow_approve_to_gateway" sourceRef="ApproveTask" targetRef="Gateway"/>
+
+    <bpmn:sequenceFlow id="Flow_approved" name="批准" sourceRef="Gateway" targetRef="ApprovedEnd">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approved}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_rejected" name="驳回" sourceRef="Gateway" targetRef="RejectedEnd">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!approved}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:endEvent id="ApprovedEnd" name="已批准">
+      <bpmn:incoming>Flow_approved</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="RejectedEnd" name="已驳回">
+      <bpmn:incoming>Flow_rejected</bpmn:incoming>
+    </bpmn:endEvent>
+
+  </bpmn:process>
+</bpmn:definitions>

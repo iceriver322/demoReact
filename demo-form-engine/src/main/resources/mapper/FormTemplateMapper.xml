@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demoform.formengine.mapper.FormTemplateMapper">
+
+    <select id="selectMyTemplates" resultType="com.demoform.formengine.entity.FormTemplate">
+        SELECT id, name, description, owner_id, schema_json, status, created_at, updated_at
+        FROM form_template
+        WHERE owner_id = #{ownerId} AND deleted = 0
+        ORDER BY updated_at DESC
+    </select>
+
+    <select id="selectPublishedTemplates" resultType="com.demoform.formengine.entity.FormTemplate">
+        SELECT id, name, description, owner_id, schema_json, status, created_at, updated_at
+        FROM form_template
+        WHERE status = 'PUBLISHED' AND deleted = 0
+        ORDER BY updated_at DESC
+    </select>
+</mapper>
