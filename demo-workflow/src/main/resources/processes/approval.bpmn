@@ -13,7 +13,7 @@
       <bpmn:outgoing>Flow_start_to_approve</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:userTask id="ApproveTask" name="审批" camunda:assignee="${assignee}">
+    <bpmn:userTask id="ApproveTask" name="审批" camunda:candidateGroups="privileged">
       <bpmn:incoming>Flow_start_to_approve</bpmn:incoming>
       <bpmn:outgoing>Flow_approve_to_gateway</bpmn:outgoing>
     </bpmn:userTask>

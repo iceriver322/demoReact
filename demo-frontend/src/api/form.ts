@@ -53,7 +53,7 @@ export const formTemplateApi = {
 
 export const formSubmissionApi = {
   submit: (templateId: number, dataJson: string) =>
-    request.post<any, FormSubmission>('/forms/submissions', { dataJson, params: { templateId } }),
+    request.post<any, FormSubmission>('/forms/submissions', { templateId, dataJson }),
 
   listByTemplate: (templateId: number, params: { page: number; size: number }) =>
     request.get<any, PageResult<FormSubmission>>(`/forms/templates/${templateId}/submissions`, { params }),

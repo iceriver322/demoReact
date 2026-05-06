@@ -32,10 +32,9 @@ public class FormSubmissionController {
     /** 提交表单数据，自动触发审批流程 */
     @PostMapping("/submissions")
     public ApiResponse<FormSubmission> submit(@Valid @RequestBody SubmissionRequest request,
-                                                @RequestParam Long templateId,
                                                 Authentication auth) {
         Long userId = (Long) auth.getPrincipal();
-        FormSubmission submission = submissionService.submit(templateId, userId, request.getDataJson());
+        FormSubmission submission = submissionService.submit(request.getTemplateId(), userId, request.getDataJson());
         // 触发审批流程
         approvalService.startApproval(submission.getId());
         return ApiResponse.success(submission);
