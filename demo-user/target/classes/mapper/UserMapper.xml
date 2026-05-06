@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demoform.user.mapper.UserMapper">
+
+    <!-- 根据用户名查询（忽略逻辑删除标记，用于注册时检查用户名唯一性） -->
+    <select id="selectByUsername" resultType="com.demoform.user.entity.SysUser">
+        SELECT id, username, password, email, status, password_expire_date,
+               created_at, updated_at, deleted
+        FROM sys_user
+        WHERE username = #{username}
+    </select>
+
+    <!-- 分页查询用户列表 -->
+    <select id="selectUserPage" resultType="com.demoform.user.dto.UserVO">
+        SELECT u.id, u.username, u.email, u.status, u.password_expire_date,
+               u.created_at
+        FROM sys_user u
+        WHERE u.deleted = 0
+        <if test="username != null and username != ''">
+            AND u.username LIKE CONCAT('%', #{username}, '%')
+        </if>
+        ORDER BY u.created_at DESC
+    </select>
+
+    <!-- 查询用户详情 -->
+    <select id="selectUserDetail" resultType="com.demoform.user.dto.UserVO">
+        SELECT u.id, u.username, u.email, u.status, u.password_expire_date, u.created_at
+        FROM sys_user u
+        WHERE u.id = #{userId} AND u.deleted = 0
+    </select>
+
+    <!-- 查询用户角色编码列表 -->
+    <select id="selectRoleCodesByUserId" resultType="java.lang.String">
+        SELECT r.code
+        FROM sys_user_role ur
+        INNER JOIN sys_role r ON ur.role_id = r.id
+        WHERE ur.user_id = #{userId}
+    </select>
+
+    <!-- 更新密码过期日期 -->
+    <update id="updatePasswordExpireDate">
+        UPDATE sys_user
+        SET password_expire_date = #{expireDate}, updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{userId}
+    </update>
+</mapper>
