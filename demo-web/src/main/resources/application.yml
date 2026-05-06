@@ -1,0 +1,33 @@
+# 默认激活开发环境
+spring:
+  profiles:
+    active: dev
+  application:
+    name: demo-form
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.demoform
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+
+# 服务器端口
+server:
+  port: 8080
+
+# JWT 配置
+jwt:
+  secret: YTJkM2Y0ZTUtYjY3OC00ZjVhLTk4MjEtZjNjM2Q1N2U4YTAx
+  expiration: 86400000
