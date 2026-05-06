@@ -90,4 +90,22 @@ class UserServiceTest {
                 .extracting("code")
                 .isEqualTo(ResultCode.PASSWORD_WEAK.getCode());
     }
+
+    @Test
+    void shouldFailWhenUserNotFound() {
+        when(userMapper.selectById(99L)).thenReturn(null);
+
+        assertThatThrownBy(() -> userService.findById(99L))
+                .isInstanceOf(BusinessException.class)
+                .extracting("code")
+                .isEqualTo(ResultCode.USER_NOT_FOUND.getCode());
+    }
+
+    @Test
+    void shouldFailWhenDeleteNonexistentUser() {
+        when(userMapper.selectById(99L)).thenReturn(null);
+
+        assertThatThrownBy(() -> userService.deleteUser(99L))
+                .isInstanceOf(BusinessException.class);
+    }
 }

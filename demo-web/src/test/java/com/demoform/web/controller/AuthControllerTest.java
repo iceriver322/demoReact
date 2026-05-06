@@ -67,6 +67,21 @@ class AuthControllerTest {
     }
 
     @Test
+    void shouldFailLoginWithWrongPassword() throws Exception {
+        LoginRequest request = new LoginRequest();
+        request.setUsername("admin");
+        request.setPassword("wrongpassword");
+
+        when(authenticationManager.authenticate(any()))
+                .thenThrow(new org.springframework.security.authentication.BadCredentialsException("密码错误"));
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void shouldRegisterSuccessfully() throws Exception {
         RegisterRequest request = new RegisterRequest();
         request.setUsername("newuser");

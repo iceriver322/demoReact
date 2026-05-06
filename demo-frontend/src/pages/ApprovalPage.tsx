@@ -42,15 +42,17 @@ const ApprovalPage: React.FC = () => {
     { title: '业务编号', dataIndex: 'processInstanceId', width: 120 },
     { title: '任务名称', dataIndex: 'name' },
     { title: '创建时间', dataIndex: 'createTime', width: 180 },
-    { title: '操作', width: 180, render: (_: any, record: TaskDto) => (
+    { title: '操作', width: 180, render: (_: any, record: TaskDto) => {
+        const submissionId = Number(record.variables?.submissionId);
+        return (
         <Space>
           <Button type="primary" size="small" icon={<CheckOutlined />}
-            onClick={() => handleApprove(Number(record.processInstanceId))}>批准</Button>
+            onClick={() => handleApprove(submissionId)}>批准</Button>
           <Button danger size="small" icon={<CloseOutlined />}
-            onClick={() => handleReject(Number(record.processInstanceId))}>驳回</Button>
+            onClick={() => handleReject(submissionId)}>驳回</Button>
         </Space>
-      ),
-    },
+      );
+    }},
   ];
 
   return (
