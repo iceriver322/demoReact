@@ -7,7 +7,7 @@
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                   id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
 
-  <bpmn:process id="approval-process" name="表单数据审批流程" isExecutable="true">
+  <bpmn:process id="approval-process" name="表单数据审批流程" isExecutable="true" camunda:historyTimeToLive="1">
 
     <bpmn:startEvent id="StartEvent" name="开始">
       <bpmn:outgoing>Flow_start_to_approve</bpmn:outgoing>

@@ -5,15 +5,17 @@ import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import org.apache.ibatis.reflection.MetaObject;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDateTime;
 
 /**
- * MyBatis-Plus 配置 —— 分页插件 + 自动填充
+ * MyBatis-Plus 配置 —— Mapper 扫描 + 分页插件 + 自动填充
  */
 @Configuration
+@MapperScan({"com.demoform.user.mapper", "com.demoform.formengine.mapper"})
 public class MyBatisPlusConfig {
 
     @Bean
