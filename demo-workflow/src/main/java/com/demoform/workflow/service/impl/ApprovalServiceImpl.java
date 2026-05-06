@@ -55,6 +55,9 @@ public class ApprovalServiceImpl implements ApprovalService {
         if (task == null) {
             throw new BusinessException(ResultCode.APPROVAL_TASK_NOT_FOUND);
         }
+        // 获取 submissionId 并更新状态
+        Long submissionId = (Long) taskService.getVariable(taskId, "submissionId");
+        updateSubmissionStatus(submissionId, approverId, true);
         Map<String, Object> variables = new HashMap<>();
         variables.put("approved", true);
         variables.put("approverId", approverId);
@@ -68,11 +71,26 @@ public class ApprovalServiceImpl implements ApprovalService {
         if (task == null) {
             throw new BusinessException(ResultCode.APPROVAL_TASK_NOT_FOUND);
         }
+        // 获取 submissionId 并更新状态
+        Long submissionId = (Long) taskService.getVariable(taskId, "submissionId");
+        updateSubmissionStatus(submissionId, approverId, false);
         Map<String, Object> variables = new HashMap<>();
         variables.put("approved", false);
         variables.put("approverId", approverId);
         if (reason != null) variables.put("rejectReason", reason);
         taskService.complete(taskId, variables);
+    }
+
+    /** 直接更新填报数据审批状态，不依赖 Camunda Delegate 回调 */
+    private void updateSubmissionStatus(Long submissionId, Long approverId, boolean approved) {
+        FormSubmission submission = submissionMapper.selectById(submissionId);
+        if (submission != null) {
+            submission.setApproverId(approverId);
+            submission.setApprovedAt(java.time.LocalDateTime.now());
+            submission.setStatus(approved ? SubmissionStatus.APPROVED.name()
+                    : SubmissionStatus.REJECTED.name());
+            submissionMapper.updateById(submission);
+        }
     }
 
     @Override

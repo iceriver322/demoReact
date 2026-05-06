@@ -1,3 +1,4 @@
+import axios from 'axios';
 import request from './request';
 
 export interface FormTemplate {
@@ -61,10 +62,11 @@ export const formSubmissionApi = {
   listMy: (params: { page: number; size: number }) =>
     request.get<any, PageResult<FormSubmission>>('/forms/submissions/my', { params }),
 
-  exportCsv: (templateId: number) =>
-    request.get(`/forms/templates/${templateId}/submissions/export`, {
+  exportCsv: (templateId: number) => {
+    const token = localStorage.getItem('token');
+    return axios.get(`/api/forms/templates/${templateId}/submissions/export`, {
       responseType: 'blob',
-      // Don't transform blob responses
-      transformResponse: [(data) => data],
-    }),
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  },
 };
