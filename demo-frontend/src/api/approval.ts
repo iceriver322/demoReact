@@ -6,6 +6,8 @@ export interface TaskDto {
   name: string;
   createTime: string;
   variables: Record<string, any>;
+  submissionData?: string;
+  templateName?: string;
 }
 
 export const approvalApi = {

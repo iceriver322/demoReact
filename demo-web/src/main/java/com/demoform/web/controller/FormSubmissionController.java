@@ -66,14 +66,21 @@ public class FormSubmissionController {
     public ResponseEntity<byte[]> export(@PathVariable Long templateId, Authentication auth) {
         Long userId = (Long) auth.getPrincipal();
         List<FormSubmission> submissions = submissionService.exportByTemplate(templateId, userId);
+        // CSV 转义：将值用双引号包裹，内部双引号重复
+        java.util.function.Function<String, String> esc = v ->
+                "\"" + (v == null ? "" : v.replace("\"", "\"\"")) + "\"";
         String csv = submissions.stream()
-                .map(s -> s.getId() + "," + s.getSubmitterId() + "," + s.getDataJson() + ","
-                        + s.getStatus() + "," + s.getCreatedAt())
-                .collect(Collectors.joining("\n"));
-        byte[] bytes = ("id,submitterId,data,status,createdAt\n" + csv)
+                .map(s -> esc.apply(String.valueOf(s.getId())) + ","
+                        + esc.apply(String.valueOf(s.getSubmitterId())) + ","
+                        + esc.apply(s.getDataJson()) + ","
+                        + esc.apply(s.getStatus()) + ","
+                        + esc.apply(String.valueOf(s.getCreatedAt())))
+                .collect(Collectors.joining("\r\n"));
+        byte[] bytes = ("id,submitterId,data,status,createdAt\r\n" + csv)
                 .getBytes(StandardCharsets.UTF_8);
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=data.csv")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"submissions_" + templateId + ".csv\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(bytes);
     }

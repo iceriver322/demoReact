@@ -16,4 +16,8 @@ public class TaskDto {
     private String name;
     private Date createTime;
     private Map<String, Object> variables;
+    /** 填报数据 JSON */
+    private String submissionData;
+    /** 表单模板名称 */
+    private String templateName;
 }
