@@ -192,7 +192,7 @@ const FormSubmitPage: React.FC = () => {
         onCancel={() => { setModalVisible(false); form.resetFields(); }}
         confirmLoading={modalLoading}
         width={640}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={form} layout="vertical">
           {schemaFields.map(f => (
