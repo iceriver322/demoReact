@@ -40,6 +40,14 @@ public class FormSubmissionController {
         return ApiResponse.success(submission);
     }
 
+    /** 查询当前用户在某模板下的所有提交记录（用于"填报数据"页面历史展示） */
+    @GetMapping("/submissions/my/template/{templateId}")
+    public ApiResponse<List<FormSubmission>> listMyByTemplate(
+            @PathVariable Long templateId, Authentication auth) {
+        Long userId = (Long) auth.getPrincipal();
+        return ApiResponse.success(submissionService.listMyByTemplateId(templateId, userId));
+    }
+
     /** 我的填报记录 */
     @GetMapping("/submissions/my")
     public ApiResponse<PageResult<FormSubmission>> listMy(
