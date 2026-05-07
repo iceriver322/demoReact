@@ -1,5 +1,8 @@
 .worktrees/
+.claude/
 target/
+.playwright-mcp/
+demo-frontend/dist/
 .DS_Store
 .idea
 
