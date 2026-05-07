@@ -16,7 +16,7 @@ REPO="-Dmaven.repo.local=/Users/fan/software/apache-maven-repo"
 # Build all modules (skip tests)
 $MVN install -DskipTests $REPO
 
-# Run all backend tests (22 tests, 0 failures)
+# Run all backend tests (27 tests, 0 failures)
 $MVN test $REPO
 
 # Run single test class
@@ -53,11 +53,13 @@ Maven multi-module project (Java 17, Spring Boot 3.2.5) with a React 18 frontend
 |-----------|--------|-------|------|
 | UserServiceTest | demo-user | 6 | Unit (Mockito) |
 | FormTemplateServiceTest | demo-form-engine | 3 | Unit (Mockito) |
-| FormSubmissionServiceTest | demo-form-engine | 5 | Unit (Mockito) |
+| FormSubmissionServiceTest | demo-form-engine | 6 | Unit (Mockito) |
+| ApprovalServiceImplTest | demo-workflow | 2 | Unit (Mockito) |
 | AuthControllerTest | demo-web | 3 | Integration (@WebMvcTest) |
 | UserControllerTest | demo-web | 4 | Integration (@WebMvcTest) |
+| ApprovalControllerTest | demo-web | 3 | Integration (@WebMvcTest) |
 | form-platform.spec.ts | demo-frontend | 6 | E2E (Playwright) |
-| **Total** | | **22 + 6** | |
+| **Total** | | **27 + 6** | |
 
 ## Key Design Decisions
 
@@ -91,6 +93,7 @@ Maven multi-module project (Java 17, Spring Boot 3.2.5) with a React 18 frontend
 | POST | `/api/forms/submissions` | Authenticated | Submit data (`templateId` + `dataJson` in body) |
 | GET | `/api/forms/submissions/my` | Authenticated | My submissions |
 | GET | `/api/forms/templates/{id}/submissions` | Authenticated | View submissions (owner only) |
+| GET | `/api/forms/submissions/my/template/{templateId}` | Authenticated | My submissions by template |
 | GET | `/api/forms/templates/{id}/submissions/export` | Authenticated | Export CSV (owner only, raw blob) |
 | GET | `/api/approvals/pending` | ROLE_PRIVILEGED/ADMIN | Pending tasks |
 | PUT | `/api/approvals/{submissionId}/approve` | ROLE_PRIVILEGED/ADMIN | Approve |
@@ -109,4 +112,4 @@ Unified response: `{ code: int, message: string, data: T }`
 7. **ApprovalService directly updates submission status** — `ApprovalCompleteDelegate` (JavaDelegate) not reliably triggered by BPMN; approve/reject call `updateSubmissionStatus()` inline
 8. **Approval frontend: `variables.submissionId` not `processInstanceId`** — Camunda processInstanceId is UUID; approval API needs numeric submissionId from process variables
 9. **CSV export bypasses axios interceptor** — Interceptor parses all responses as JSON `{code,message,data}`; export uses raw axios with `responseType:'blob'`
-10. **`@WebMvcTest` + `addFilters=false`** — Auth post-processors don't work; use `@MockBean JwtAuthFilter` + `@MockBean JwtUtil`; set auth via `.with(authentication(AUTH))` with Long principal on each request
+10. **`@WebMvcTest` + `Authentication auth` controller parameter** — When using `addFilters=false`, the `Authentication` param in controllers is resolved by `PrincipalMethodArgumentResolver` via `request.getUserPrincipal()`, not from `SecurityContextHolder`. Use a custom `RequestPostProcessor` to set it directly: `.with(request -> { request.setUserPrincipal(auth); return request; })`.
