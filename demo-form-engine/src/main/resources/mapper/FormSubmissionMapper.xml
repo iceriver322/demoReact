@@ -26,4 +26,12 @@
         WHERE template_id = #{templateId} AND deleted = 0
         ORDER BY created_at DESC
     </select>
+
+    <select id="selectMyByTemplateId" resultType="com.demoform.formengine.entity.FormSubmission">
+        SELECT id, template_id, submitter_id, data_json, status,
+               approver_id, approved_at, created_at, updated_at
+        FROM form_submission
+        WHERE template_id = #{templateId} AND submitter_id = #{submitterId} AND deleted = 0
+        ORDER BY created_at DESC
+    </select>
 </mapper>

@@ -24,4 +24,8 @@ public interface FormSubmissionMapper extends BaseMapper<FormSubmission> {
 
     /** 查询指定模板的所有填报数据(不分页，用于导出CSV) */
     List<FormSubmission> selectAllByTemplateId(@Param("templateId") Long templateId);
+
+    /** 查询当前用户在某模板下的所有提交记录 */
+    List<FormSubmission> selectMyByTemplateId(@Param("templateId") Long templateId,
+                                               @Param("submitterId") Long submitterId);
 }
