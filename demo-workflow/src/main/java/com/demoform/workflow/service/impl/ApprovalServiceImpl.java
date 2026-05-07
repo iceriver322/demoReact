@@ -4,7 +4,9 @@ import com.demoform.common.enums.ResultCode;
 import com.demoform.common.enums.SubmissionStatus;
 import com.demoform.common.exception.BusinessException;
 import com.demoform.formengine.entity.FormSubmission;
+import com.demoform.formengine.entity.FormTemplate;
 import com.demoform.formengine.mapper.FormSubmissionMapper;
+import com.demoform.formengine.mapper.FormTemplateMapper;
 import com.demoform.workflow.dto.TaskDto;
 import com.demoform.workflow.service.ApprovalService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class ApprovalServiceImpl implements ApprovalService {
     private final RuntimeService runtimeService;
     private final TaskService taskService;
     private final FormSubmissionMapper submissionMapper;
+    private final FormTemplateMapper templateMapper;
 
     @Override
     @Transactional
@@ -98,13 +101,32 @@ public class ApprovalServiceImpl implements ApprovalService {
         List<Task> tasks = taskService.createTaskQuery()
                 .initializeFormKeys()
                 .list();
-        return tasks.stream().map(task -> TaskDto.builder()
-                .taskId(task.getId())
-                .processInstanceId(task.getProcessInstanceId())
-                .name(task.getName())
-                .createTime(task.getCreateTime())
-                .variables(taskService.getVariables(task.getId()))
-                .build()).collect(Collectors.toList());
+        return tasks.stream().map(task -> {
+            Map<String, Object> variables = taskService.getVariables(task.getId());
+            String submissionData = null;
+            String templateName = null;
+            Object submissionIdObj = variables.get("submissionId");
+            if (submissionIdObj instanceof Number num) {
+                Long submissionId = num.longValue();
+                FormSubmission submission = submissionMapper.selectById(submissionId);
+                if (submission != null) {
+                    submissionData = submission.getDataJson();
+                    FormTemplate template = templateMapper.selectById(submission.getTemplateId());
+                    if (template != null) {
+                        templateName = template.getName();
+                    }
+                }
+            }
+            return TaskDto.builder()
+                    .taskId(task.getId())
+                    .processInstanceId(task.getProcessInstanceId())
+                    .name(task.getName())
+                    .createTime(task.getCreateTime())
+                    .variables(variables)
+                    .submissionData(submissionData)
+                    .templateName(templateName)
+                    .build();
+        }).collect(Collectors.toList());
     }
 
     @Override

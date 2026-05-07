@@ -26,11 +26,15 @@ const SubmissionListPage: React.FC = () => {
     if (!id) return;
     try {
       const response = await formSubmissionApi.exportCsv(Number(id));
-      const url = URL.createObjectURL(response as any);
+      // responseType:'blob' 时 data 才是 Blob
+      const url = URL.createObjectURL(response.data);
       const a = document.createElement('a');
       a.href = url; a.download = `submissions_${id}.csv`; a.click();
       URL.revokeObjectURL(url);
-    } catch { message.error('导出失败'); }
+    } catch (err: any) {
+      console.error('导出失败', err);
+      message.error(err?.response?.data?.message || err?.message || '导出失败');
+    }
   };
 
   const columns = [

@@ -37,7 +37,7 @@ function App() {
               <Route path="/forms/submit/:id" element={<FormSubmitPage />} />
               <Route path="/forms/submissions/my" element={<MySubmissionsPage />} />
               <Route path="/approvals/pending" element={
-                <ProtectedRoute requiredRole="ROLE_PRIVILEGED"><ApprovalPage /></ProtectedRoute>
+                <ProtectedRoute requiredRole={undefined}><ApprovalPage /></ProtectedRoute>
               } />
               <Route path="/admin/users" element={
                 <ProtectedRoute requiredRole="ROLE_ADMIN"><UserManagementPage /></ProtectedRoute>
