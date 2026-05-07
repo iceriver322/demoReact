@@ -17,6 +17,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.util.List;
+
 /**
  * 表单填报服务单元测试
  */
@@ -80,5 +82,22 @@ class FormSubmissionServiceTest {
 
         assertThatThrownBy(() -> service.findById(99L))
                 .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    void shouldListMyByTemplateId() {
+        FormSubmission s1 = new FormSubmission();
+        s1.setId(1L);
+        s1.setTemplateId(10L);
+        s1.setSubmitterId(1L);
+        s1.setDataJson("{\"name\":\"test\"}");
+        s1.setStatus("PENDING");
+        when(submissionMapper.selectMyByTemplateId(10L, 1L)).thenReturn(List.of(s1));
+
+        List<FormSubmission> result = service.listMyByTemplateId(10L, 1L);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo(1L);
+        verify(submissionMapper).selectMyByTemplateId(10L, 1L);
     }
 }
