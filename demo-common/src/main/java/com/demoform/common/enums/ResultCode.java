@@ -36,7 +36,9 @@ public enum ResultCode {
     NOT_FORM_OWNER(2006, "非表单所有者"),
 
     // 业务错误码 - 审批
-    APPROVAL_TASK_NOT_FOUND(3001, "审批任务不存在");
+    APPROVAL_TASK_NOT_FOUND(3001, "审批任务不存在"),
+    /** 不能审批自己的提交 */
+    CANNOT_APPROVE_SELF(3002, "不能审批自己的提交");
 
     private final int code;
     private final String message;
