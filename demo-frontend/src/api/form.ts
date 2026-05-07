@@ -62,6 +62,9 @@ export const formSubmissionApi = {
   listMy: (params: { page: number; size: number }) =>
     request.get<any, PageResult<FormSubmission>>('/forms/submissions/my', { params }),
 
+  listMyByTemplate: (templateId: number) =>
+    request.get<any, FormSubmission[]>(`/forms/submissions/my/template/${templateId}`),
+
   exportCsv: (templateId: number) => {
     const token = localStorage.getItem('token');
     return axios.get(`/api/forms/templates/${templateId}/submissions/export`, {
