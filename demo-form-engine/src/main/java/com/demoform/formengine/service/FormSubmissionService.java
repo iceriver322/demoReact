@@ -15,6 +15,9 @@ public interface FormSubmissionService {
 
     PageResult<FormSubmission> listMySubmissions(int page, int size, Long submitterId);
 
+    /** 查询当前用户在某模板下的所有提交记录 */
+    List<FormSubmission> listMyByTemplateId(Long templateId, Long submitterId);
+
     List<FormSubmission> exportByTemplate(Long templateId, Long userId);
 
     FormSubmission findById(Long submissionId);

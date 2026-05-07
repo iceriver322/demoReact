@@ -73,6 +73,11 @@ public class FormSubmissionServiceImpl implements FormSubmissionService {
     }
 
     @Override
+    public List<FormSubmission> listMyByTemplateId(Long templateId, Long submitterId) {
+        return submissionMapper.selectMyByTemplateId(templateId, submitterId);
+    }
+
+    @Override
     public List<FormSubmission> exportByTemplate(Long templateId, Long userId) {
         FormTemplate template = templateMapper.selectById(templateId);
         if (template == null) {
