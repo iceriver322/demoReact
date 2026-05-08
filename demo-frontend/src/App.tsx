@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/MainLayout';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ChangePasswordPage from './pages/ChangePasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import FormTemplateListPage from './pages/FormTemplateListPage';
 import FormDesignerPage from './pages/FormDesignerPage';
@@ -25,6 +26,7 @@ function App() {
             {/* 公开路由 */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/change-password" element={<ChangePasswordPage />} />
 
             {/* 需要认证的路由 */}
             <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>

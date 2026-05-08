@@ -13,7 +13,19 @@ const LoginPage: React.FC = () => {
       message.success('登录成功');
       navigate('/');
     } catch (err: any) {
-      message.error(err.response?.data?.message || err.message || '登录失败');
+      const code = err.response?.data?.code;
+      if (code === 1004) { // PASSWORD_EXPIRED
+        navigate(`/change-password?username=${encodeURIComponent(values.username)}`);
+        return;
+      }
+      if (code === 1005) { // ACCOUNT_LOCKED
+        message.error('账户已被锁定，请30分钟后重试或联系管理员解锁');
+      } else {
+        message.error('用户名或密码错误');
+      }
+      // Clear password field
+      const passwordField = document.querySelector('input[type="password"]') as HTMLInputElement;
+      if (passwordField) passwordField.value = '';
     }
   };
 

@@ -36,4 +36,7 @@ export const authApi = {
     request.post('/auth/register', params),
 
   getMe: () => request.get<any, UserInfo>('/auth/me'),
+
+  changePassword: (data: { username: string; oldPassword: string; newPassword: string }) =>
+    request.put<any, LoginResult>('/auth/password', data),
 };
