@@ -2,9 +2,13 @@ package com.demoform.web.controller;
 
 import com.demoform.common.dto.ApiResponse;
 import com.demoform.common.dto.PageResult;
+import com.demoform.common.enums.ResultCode;
+import com.demoform.common.enums.SubmissionStatus;
+import com.demoform.common.exception.BusinessException;
 import com.demoform.formengine.dto.SubmissionRequest;
 import com.demoform.formengine.entity.FormSubmission;
 import com.demoform.formengine.entity.FormTemplate;
+import com.demoform.formengine.mapper.FormSubmissionMapper;
 import com.demoform.formengine.mapper.FormTemplateMapper;
 import com.demoform.formengine.service.FormSubmissionService;
 import com.demoform.user.mapper.UserMapper;
@@ -34,15 +38,30 @@ public class FormSubmissionController {
     private final ApprovalService approvalService;
     private final UserMapper userMapper;
     private final FormTemplateMapper templateMapper;
+    private final FormSubmissionMapper submissionMapper;
 
     /** 提交表单数据，自动触发审批流程 */
     @PostMapping("/submissions")
     public ApiResponse<FormSubmission> submit(@Valid @RequestBody SubmissionRequest request,
                                                 Authentication auth) {
         Long userId = (Long) auth.getPrincipal();
+        // 先获取模板信息判断是否需要审批
+        FormTemplate template = templateMapper.selectById(request.getTemplateId());
+        if (template == null) {
+            throw new BusinessException(ResultCode.FORM_NOT_FOUND);
+        }
+
         FormSubmission submission = submissionService.submit(request.getTemplateId(), userId, request.getDataJson());
-        // 触发审批流程
-        approvalService.startApproval(submission.getId());
+
+        if (Boolean.TRUE.equals(template.getNeedApproval())) {
+            // 需要审批 → 启动 Camunda 流程
+            approvalService.startApproval(submission.getId());
+        } else {
+            // 无需审批 → 直接设置为已提交状态
+            submission.setStatus(SubmissionStatus.SUBMITTED.name());
+            submissionMapper.updateById(submission);
+        }
+
         return ApiResponse.success(submission);
     }
 

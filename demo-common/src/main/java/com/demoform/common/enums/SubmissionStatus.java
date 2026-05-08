@@ -9,5 +9,7 @@ public enum SubmissionStatus {
     /** 已通过 */
     APPROVED,
     /** 已驳回 */
-    REJECTED
+    REJECTED,
+    /** 已提交（无需审批） */
+    SUBMITTED
 }

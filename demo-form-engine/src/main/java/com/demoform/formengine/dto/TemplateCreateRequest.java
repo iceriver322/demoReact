@@ -12,4 +12,5 @@ public class TemplateCreateRequest {
     private String name;
     private String description;
     private String schemaJson;
+    private Boolean needApproval;
 }

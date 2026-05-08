@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS form_template (
     owner_id BIGINT NOT NULL COMMENT '创建者ID',
     schema_json CLOB COMMENT '表单字段定义JSON',
     status VARCHAR(20) DEFAULT 'DRAFT' COMMENT '状态：DRAFT-草稿 PUBLISHED-已发布 DISABLED-已停用',
+    need_approval BOOLEAN DEFAULT TRUE COMMENT '是否需要审批',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted TINYINT DEFAULT 0
@@ -51,7 +52,7 @@ CREATE TABLE IF NOT EXISTS form_submission (
     template_id BIGINT NOT NULL COMMENT '表单模板ID',
     submitter_id BIGINT NOT NULL COMMENT '提交者ID',
     data_json CLOB COMMENT '填报数据JSON',
-    status VARCHAR(20) DEFAULT 'PENDING' COMMENT '状态：PENDING-待审批 APPROVED-已通过 REJECTED-已驳回',
+    status VARCHAR(20) DEFAULT 'PENDING' COMMENT '状态：PENDING-待审批 APPROVED-已通过 REJECTED-已驳回 SUBMITTED-已提交',
     approver_id BIGINT COMMENT '审批人ID',
     approved_at TIMESTAMP COMMENT '审批时间',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

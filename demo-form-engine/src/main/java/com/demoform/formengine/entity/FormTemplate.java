@@ -29,4 +29,7 @@ public class FormTemplate extends BaseEntity {
 
     /** 状态：DRAFT / PUBLISHED / DISABLED */
     private String status;
+
+    /** 是否需要审批（默认 true） */
+    private Boolean needApproval;
 }

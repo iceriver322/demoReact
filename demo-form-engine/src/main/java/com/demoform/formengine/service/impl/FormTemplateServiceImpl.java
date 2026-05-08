@@ -33,6 +33,7 @@ public class FormTemplateServiceImpl implements FormTemplateService {
         template.setOwnerId(ownerId);
         template.setSchemaJson(request.getSchemaJson());
         template.setStatus(FormStatus.DRAFT.name());
+        template.setNeedApproval(request.getNeedApproval() == null || request.getNeedApproval());
         formTemplateMapper.insert(template);
         return template;
     }
@@ -47,6 +48,7 @@ public class FormTemplateServiceImpl implements FormTemplateService {
         if (request.getName() != null) template.setName(request.getName());
         if (request.getDescription() != null) template.setDescription(request.getDescription());
         if (request.getSchemaJson() != null) template.setSchemaJson(request.getSchemaJson());
+        if (request.getNeedApproval() != null) template.setNeedApproval(request.getNeedApproval());
         formTemplateMapper.updateById(template);
         return template;
     }
