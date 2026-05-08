@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Row, Col, Input, Button, Space, message } from 'antd';
+import { Row, Col, Input, Button, Space, Switch, message } from 'antd';
 import { SaveOutlined, SendOutlined } from '@ant-design/icons';
 import {
   DndContext, DragEndEvent, PointerSensor, useSensor, useSensors,
@@ -25,6 +25,7 @@ const FormDesignerPage: React.FC = () => {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [needApproval, setNeedApproval] = useState(true);
   const [fields, setFields] = useState<FormField[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -37,6 +38,7 @@ const FormDesignerPage: React.FC = () => {
       formTemplateApi.detail(Number(id)).then((t) => {
         setName(t.name);
         setDescription(t.description || '');
+        setNeedApproval(t.needApproval !== false);
         try { setFields(JSON.parse(t.schemaJson || '[]')); }
         catch { setFields([]); }
       }).catch(() => message.error('表单不存在'));
@@ -78,10 +80,10 @@ const FormDesignerPage: React.FC = () => {
     const schema = JSON.stringify(fields);
     try {
       if (isEdit) {
-        await formTemplateApi.update(Number(id), { name, description, schemaJson: schema });
+        await formTemplateApi.update(Number(id), { name, description, schemaJson: schema, needApproval });
         message.success('保存成功');
       } else {
-        const created = await formTemplateApi.create({ name, description, schemaJson: schema });
+        const created = await formTemplateApi.create({ name, description, schemaJson: schema, needApproval });
         message.success('创建成功');
         navigate(`/forms/templates/${created.id}`, { replace: true });
       }
@@ -112,7 +114,12 @@ const FormDesignerPage: React.FC = () => {
             onChange={e => setDescription(e.target.value)} style={{ width: 240 }} />
         </Space>
         <Space>
+          <span>需要审批</span>
+          <Switch checked={needApproval} onChange={setNeedApproval} />
+        </Space>
+        <Space>
           <Button icon={<SaveOutlined />} onClick={handleSave}>保存</Button>
+          <Button onClick={() => navigate(-1)}>取消</Button>
           {isEdit && (
             <Button type="primary" icon={<SendOutlined />} onClick={handlePublish}>发布</Button>
           )}

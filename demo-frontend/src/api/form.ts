@@ -8,6 +8,7 @@ export interface FormTemplate {
   ownerId: number;
   schemaJson: string;
   status: string;
+  needApproval?: boolean;
   createdAt: string;
 }
 
@@ -30,7 +31,7 @@ export interface PageResult<T> {
 }
 
 export const formTemplateApi = {
-  create: (data: { name: string; description?: string; schemaJson?: string }) =>
+  create: (data: { name: string; description?: string; schemaJson?: string; needApproval?: boolean }) =>
     request.post<any, FormTemplate>('/forms/templates', data),
 
   listMine: (params: { page: number; size: number }) =>
