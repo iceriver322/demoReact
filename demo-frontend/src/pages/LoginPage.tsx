@@ -13,7 +13,7 @@ const LoginPage: React.FC = () => {
       message.success('登录成功');
       navigate('/');
     } catch (err: any) {
-      const code = err.response?.data?.code;
+      const code = (err as any).__apiCode;
       if (code === 1004) { // PASSWORD_EXPIRED
         navigate(`/change-password?username=${encodeURIComponent(values.username)}`);
         return;

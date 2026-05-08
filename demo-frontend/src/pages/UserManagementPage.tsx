@@ -51,7 +51,7 @@ const UserManagementPage: React.FC = () => {
       form.resetFields();
       load();
     } catch (err: any) {
-      message.error(err.response?.data?.message || err.message || '创建失败');
+      message.error((err as any).__apiData?.message || err.message || '创建失败');
     } finally { setAddLoading(false); }
   };
 

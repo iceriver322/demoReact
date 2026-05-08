@@ -21,7 +21,10 @@ request.interceptors.response.use(
     if (code === 200) {
       return data;
     }
-    return Promise.reject(new Error(message || '请求失败'));
+    const err = new Error(message || '请求失败');
+    (err as any).__apiCode = code;
+    (err as any).__apiData = data;
+    return Promise.reject(err);
   },
   (error) => {
     if (error.response?.status === 401) {

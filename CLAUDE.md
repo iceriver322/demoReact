@@ -16,7 +16,7 @@ REPO="-Dmaven.repo.local=/Users/fan/software/apache-maven-repo"
 # Build all modules (skip tests)
 $MVN install -DskipTests $REPO
 
-# Run all backend tests (27 tests, 0 failures)
+# Run all backend tests (28 tests, 0 failures)
 $MVN test $REPO
 
 # Run single test class
@@ -54,12 +54,12 @@ Maven multi-module project (Java 17, Spring Boot 3.2.5) with a React 18 frontend
 | UserServiceTest | demo-user | 6 | Unit (Mockito) |
 | FormTemplateServiceTest | demo-form-engine | 3 | Unit (Mockito) |
 | FormSubmissionServiceTest | demo-form-engine | 6 | Unit (Mockito) |
-| ApprovalServiceImplTest | demo-workflow | 2 | Unit (Mockito) |
+| ApprovalServiceImplTest | demo-workflow | 3 | Unit (Mockito) |
 | AuthControllerTest | demo-web | 3 | Integration (@WebMvcTest) |
 | UserControllerTest | demo-web | 4 | Integration (@WebMvcTest) |
 | ApprovalControllerTest | demo-web | 3 | Integration (@WebMvcTest) |
-| form-platform.spec.ts | demo-frontend | 6 | E2E (Playwright) |
-| **Total** | | **27 + 6** | |
+| form-platform.spec.ts | demo-frontend | 9 | E2E (Playwright) |
+| **Total** | | **28 + 9** | |
 
 ## Key Design Decisions
 
@@ -69,6 +69,9 @@ Maven multi-module project (Java 17, Spring Boot 3.2.5) with a React 18 frontend
 - **Forms:** Schema stored as JSON in `form_template.schema_json`; submissions as JSON in `form_submission.data_json`; drag-and-drop builder serializes `FormField[]` to schema JSON
 - **Workflow:** Camunda 7 Community embedded; approval triggered from Controller (not Service, avoiding cyclic dependency); **approve/reject directly updates submission status in Service layer** (not via BPMN Delegate — Delegate not triggered reliably)
 - **Password:** `admin/admin` initial login; `DataInitializer` re-encodes password + sets expire=yesterday at startup forcing first-login change
+- **Account lockout:** 3 failed login attempts locks account for 30 minutes; auto-unlock after 30 min; admin can unlock via `PUT /api/users/{id}/unlock`
+- **Form approval:** Templates can be created with `needApproval: false` to skip approval workflow (submission status = `SUBMITTED`); default `needApproval: true` for standard approval flow
+- **Approval filtering:** Pending approval list excludes submissions by the same user; approval modal displays formatted submission data via `SubmissionDataDisplay` component
 - **Frontend auth:** JWT in localStorage; axios interceptor auto-attaches Bearer token and unwraps `ApiResponse.data`; 401 clears token → redirect /login
 - **CSV export:** Bypasses axios interceptor (uses raw axios with `responseType: 'blob'`) since interceptor treats all responses as JSON `{code, message, data}`
 
@@ -76,11 +79,13 @@ Maven multi-module project (Java 17, Spring Boot 3.2.5) with a React 18 frontend
 
 | Method | Path | Auth | Notes |
 |--------|------|------|-------|
-| POST | `/api/auth/login` | Public | Returns JWT |
+| POST | `/api/auth/login` | Public | Returns JWT; returns 1004 if password expired, 1005 if locked |
 | POST | `/api/auth/register` | Public | Default ROLE_USER |
+| PUT | `/api/auth/password` | Public | Change password (oldPassword + newPassword) |
 | GET | `/api/auth/me` | Authenticated | Current user info |
 | GET | `/api/users` | ROLE_ADMIN | Paginated user list |
 | PUT | `/api/users/{id}/roles` | ROLE_ADMIN | Role assignment |
+| PUT | `/api/users/{id}/unlock` | ROLE_ADMIN | Unlock locked account |
 | DELETE | `/api/users/{id}` | ROLE_ADMIN | Soft delete |
 | POST | `/api/forms/templates` | Authenticated | Create form |
 | GET | `/api/forms/templates` | Authenticated | My forms |

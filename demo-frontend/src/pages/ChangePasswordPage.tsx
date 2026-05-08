@@ -26,7 +26,7 @@ const ChangePasswordPage: React.FC = () => {
       message.success('密码修改成功');
       navigate('/');
     } catch (err: any) {
-      message.error(err.response?.data?.message || err.message || '修改密码失败');
+      message.error((err as any).__apiData?.message || err.message || '修改密码失败');
     } finally {
       setLoading(false);
     }

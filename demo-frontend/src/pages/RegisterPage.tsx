@@ -13,7 +13,8 @@ const RegisterPage: React.FC = () => {
       message.success('注册成功，请登录');
       navigate('/login');
     } catch (err: any) {
-      message.error(err.response?.data?.message || err.message || '注册失败');
+      const apiData = (err as any).__apiData;
+      message.error(apiData?.message || err.message || '注册失败');
     }
   };
 
