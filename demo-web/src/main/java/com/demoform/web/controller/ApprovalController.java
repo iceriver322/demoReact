@@ -28,8 +28,9 @@ public class ApprovalController {
 
     /** 待审批列表 */
     @GetMapping("/pending")
-    public ApiResponse<List<TaskDto>> pending() {
-        return ApiResponse.success(approvalService.getPendingTasks());
+    public ApiResponse<List<TaskDto>> pending(Authentication auth) {
+        Long userId = (Long) auth.getPrincipal();
+        return ApiResponse.success(approvalService.getPendingTasks(userId));
     }
 
     /** 批准 */

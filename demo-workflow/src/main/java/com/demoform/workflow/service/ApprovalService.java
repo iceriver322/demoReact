@@ -17,8 +17,8 @@ public interface ApprovalService {
     /** 驳回 */
     void reject(String taskId, Long approverId, String reason);
 
-    /** 查询待审批任务列表 */
-    List<TaskDto> getPendingTasks();
+    /** 查询待审批任务列表（排除当前用户自己的提交） */
+    List<TaskDto> getPendingTasks(Long userId);
 
     /** 根据业务ID查找任务ID */
     String findTaskBySubmissionId(Long submissionId);

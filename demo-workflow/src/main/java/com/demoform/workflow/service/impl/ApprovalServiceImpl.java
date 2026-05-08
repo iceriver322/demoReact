@@ -97,36 +97,46 @@ public class ApprovalServiceImpl implements ApprovalService {
     }
 
     @Override
-    public List<TaskDto> getPendingTasks() {
+    public List<TaskDto> getPendingTasks(Long userId) {
         List<Task> tasks = taskService.createTaskQuery()
                 .initializeFormKeys()
                 .list();
-        return tasks.stream().map(task -> {
-            Map<String, Object> variables = taskService.getVariables(task.getId());
-            String submissionData = null;
-            String templateName = null;
-            Object submissionIdObj = variables.get("submissionId");
-            if (submissionIdObj instanceof Number num) {
-                Long submissionId = num.longValue();
-                FormSubmission submission = submissionMapper.selectById(submissionId);
-                if (submission != null) {
-                    submissionData = submission.getDataJson();
-                    FormTemplate template = templateMapper.selectById(submission.getTemplateId());
-                    if (template != null) {
-                        templateName = template.getName();
+        return tasks.stream()
+                .map(task -> {
+                    Map<String, Object> variables = taskService.getVariables(task.getId());
+                    String submissionData = null;
+                    String templateName = null;
+                    String schemaJson = null;
+                    Object submissionIdObj = variables.get("submissionId");
+                    if (submissionIdObj instanceof Number num) {
+                        Long submissionId = num.longValue();
+                        FormSubmission submission = submissionMapper.selectById(submissionId);
+                        if (submission != null) {
+                            // 过滤：跳过当前用户自己的提交
+                            if (submission.getSubmitterId().equals(userId)) {
+                                return null;
+                            }
+                            submissionData = submission.getDataJson();
+                            FormTemplate template = templateMapper.selectById(submission.getTemplateId());
+                            if (template != null) {
+                                templateName = template.getName();
+                                schemaJson = template.getSchemaJson();
+                            }
+                        }
                     }
-                }
-            }
-            return TaskDto.builder()
-                    .taskId(task.getId())
-                    .processInstanceId(task.getProcessInstanceId())
-                    .name(task.getName())
-                    .createTime(task.getCreateTime())
-                    .variables(variables)
-                    .submissionData(submissionData)
-                    .templateName(templateName)
-                    .build();
-        }).collect(Collectors.toList());
+                    return TaskDto.builder()
+                            .taskId(task.getId())
+                            .processInstanceId(task.getProcessInstanceId())
+                            .name(task.getName())
+                            .createTime(task.getCreateTime())
+                            .variables(variables)
+                            .submissionData(submissionData)
+                            .templateName(templateName)
+                            .schemaJson(schemaJson)
+                            .build();
+                })
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -50,6 +50,7 @@ class ApprovalServiceImplTest {
         FormSubmission submission = new FormSubmission();
         submission.setId(1L);
         submission.setTemplateId(10L);
+        submission.setSubmitterId(1L);
         submission.setDataJson("{\"name\":\"张三\",\"age\":30}");
         submission.setStatus("PENDING");
         when(submissionMapper.selectById(1L)).thenReturn(submission);
@@ -59,13 +60,14 @@ class ApprovalServiceImplTest {
         template.setName("员工信息表");
         when(templateMapper.selectById(10L)).thenReturn(template);
 
-        List<TaskDto> result = approvalService.getPendingTasks();
+        List<TaskDto> result = approvalService.getPendingTasks(2L);
 
         assertThat(result).hasSize(1);
         TaskDto dto = result.get(0);
         assertThat(dto.getTaskId()).isEqualTo("task1");
         assertThat(dto.getSubmissionData()).isEqualTo("{\"name\":\"张三\",\"age\":30}");
         assertThat(dto.getTemplateName()).isEqualTo("员工信息表");
+        assertThat(dto.getSchemaJson()).isNull();
     }
 
     @Test
@@ -87,11 +89,12 @@ class ApprovalServiceImplTest {
 
         when(submissionMapper.selectById(99L)).thenReturn(null);
 
-        List<TaskDto> result = approvalService.getPendingTasks();
+        List<TaskDto> result = approvalService.getPendingTasks(2L);
 
         assertThat(result).hasSize(1);
         TaskDto dto = result.get(0);
         assertThat(dto.getSubmissionData()).isNull();
         assertThat(dto.getTemplateName()).isNull();
+        assertThat(dto.getSchemaJson()).isNull();
     }
 }

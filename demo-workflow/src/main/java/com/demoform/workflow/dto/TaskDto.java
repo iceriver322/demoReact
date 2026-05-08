@@ -20,4 +20,6 @@ public class TaskDto {
     private String submissionData;
     /** 表单模板名称 */
     private String templateName;
+    /** 表单模板 schema JSON */
+    private String schemaJson;
 }
