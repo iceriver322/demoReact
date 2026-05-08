@@ -9,6 +9,9 @@ import lombok.Data;
  */
 @Data
 public class ChangePasswordRequest {
+    @NotBlank(message = "用户名不能为空")
+    private String username;
+
     @NotBlank(message = "原密码不能为空")
     private String oldPassword;
 

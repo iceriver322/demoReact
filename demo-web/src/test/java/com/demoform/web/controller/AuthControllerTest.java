@@ -17,9 +17,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -50,10 +53,13 @@ class AuthControllerTest {
         user.setUsername("admin");
         user.setStatus(1);
         user.setEmail("admin@demoform.com");
+        user.setPasswordExpireDate(LocalDate.now().plusDays(30));
 
+        doNothing().when(userService).checkAccountLocked("admin");
         when(authenticationManager.authenticate(any()))
                 .thenReturn(new UsernamePasswordAuthenticationToken("admin", "admin"));
         when(userService.findByUsername("admin")).thenReturn(user);
+        doNothing().when(userService).resetLoginAttempts("admin");
         when(userService.getUserRoleCodes(1L)).thenReturn(List.of("ROLE_ADMIN"));
         when(jwtUtil.generateToken(1L, "admin", List.of("ROLE_ADMIN")))
                 .thenReturn("test-token");
@@ -72,13 +78,17 @@ class AuthControllerTest {
         request.setUsername("admin");
         request.setPassword("wrongpassword");
 
+        doNothing().when(userService).checkAccountLocked("admin");
         when(authenticationManager.authenticate(any()))
                 .thenThrow(new org.springframework.security.authentication.BadCredentialsException("密码错误"));
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(1003));
+
+        verify(userService).recordLoginFailure("admin");
     }
 
     @Test
