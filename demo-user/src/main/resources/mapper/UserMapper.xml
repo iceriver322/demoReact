@@ -15,6 +15,7 @@
     <!-- 分页查询用户列表 -->
     <select id="selectUserPage" resultType="com.demoform.user.dto.UserVO">
         SELECT u.id, u.username, u.email, u.status, u.password_expire_date,
+               u.lock_time,
                u.created_at
         FROM sys_user u
         WHERE u.deleted = 0
@@ -26,7 +27,7 @@
 
     <!-- 查询用户详情 -->
     <select id="selectUserDetail" resultType="com.demoform.user.dto.UserVO">
-        SELECT u.id, u.username, u.email, u.status, u.password_expire_date, u.created_at
+        SELECT u.id, u.username, u.email, u.status, u.password_expire_date, u.lock_time, u.created_at
         FROM sys_user u
         WHERE u.id = #{userId} AND u.deleted = 0
     </select>

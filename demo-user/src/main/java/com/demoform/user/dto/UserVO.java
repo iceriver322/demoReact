@@ -21,6 +21,7 @@ public class UserVO {
     private String email;
     private Integer status;
     private LocalDate passwordExpireDate;
+    private LocalDateTime lockTime;
     private List<String> roles;
     private LocalDateTime createdAt;
 }

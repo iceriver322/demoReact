@@ -4,6 +4,12 @@ import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, DownloadOutlin
 import { useNavigate } from 'react-router-dom';
 import { formTemplateApi, formSubmissionApi, FormTemplate } from '../api/form';
 
+const timestamp = () => {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+};
+
 const FormTemplateListPage: React.FC = () => {
   const [data, setData] = useState<FormTemplate[]>([]);
   const [loading, setLoading] = useState(false);
@@ -28,9 +34,9 @@ const FormTemplateListPage: React.FC = () => {
   const handleExport = async (rec: FormTemplate) => {
     try {
       const response = await formSubmissionApi.exportCsv(rec.id);
-      const url = URL.createObjectURL(response as any);
+      const url = URL.createObjectURL(response.data);
       const a = document.createElement('a');
-      a.href = url; a.download = `data_${rec.id}.csv`; a.click();
+      a.href = url; a.download = `${rec.name}_${timestamp()}.csv`; a.click();
       URL.revokeObjectURL(url);
     } catch { message.error('导出失败'); }
   };

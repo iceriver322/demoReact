@@ -1,7 +1,7 @@
 import { Layout, Menu, Button, Dropdown, Avatar } from 'antd';
 import {
   FormOutlined, FileTextOutlined, CheckCircleOutlined,
-  UserOutlined, DashboardOutlined, LogoutOutlined,
+  UserOutlined, DashboardOutlined, LogoutOutlined, KeyOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -27,6 +27,7 @@ const MainLayout: React.FC = () => {
 
   const userMenuItems = [
     { key: 'profile', label: `${user?.username}` },
+    { key: 'change-password', icon: <KeyOutlined />, label: '修改密码' },
     { key: 'logout', icon: <LogoutOutlined />, label: '退出登录', danger: true },
   ];
 
@@ -36,6 +37,8 @@ const MainLayout: React.FC = () => {
     if (key === 'logout') {
       logout();
       navigate('/login');
+    } else if (key === 'change-password') {
+      navigate(`/change-password?username=${user?.username ?? ''}`);
     }
   };
 

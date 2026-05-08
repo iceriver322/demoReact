@@ -5,6 +5,7 @@ export interface UserVO {
   username: string;
   email: string;
   status: number;
+  lockTime?: string;
   passwordExpireDate: string;
   roles: string[];
   createdAt: string;
@@ -32,6 +33,9 @@ export const userApi = {
 
   assignRoles: (id: number, roleIds: number[]) =>
     request.put(`/users/${id}/roles`, { roleIds }),
+
+  unlock: (id: number) =>
+    request.put(`/users/${id}/unlock`),
 
   changePassword: (data: { oldPassword: string; newPassword: string }) =>
     request.put('/users/change-password', data),

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Tag, Space, Modal, Select, message, Popconfirm, Form, Input } from 'antd';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, PlusOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import { userApi, UserVO } from '../api/user';
 import { authApi } from '../api/auth';
 
@@ -23,6 +23,21 @@ const UserManagementPage: React.FC = () => {
   };
 
   useEffect(() => { load(); }, [page]);
+
+  const isLocked = (record: UserVO) => {
+    if (!record.lockTime) return false;
+    return Date.now() - new Date(record.lockTime).getTime() < 30 * 60 * 1000;
+  };
+
+  const handleUnlock = async (id: number) => {
+    try {
+      await userApi.unlock(id);
+      message.success('已解锁');
+      load();
+    } catch (err: any) {
+      message.error((err as any).__apiData?.message || err.message || '解锁失败');
+    }
+  };
 
   const handleDelete = async (id: number) => {
     await userApi.delete(id);
@@ -88,12 +103,21 @@ const UserManagementPage: React.FC = () => {
         <>{roles?.map(r => <Tag key={r} color="blue">{r}</Tag>)}</>
       ),
     },
-    { title: '状态', dataIndex: 'status', width: 80,
-      render: (s: number) => s === 1 ? <Tag color="green">正常</Tag> : <Tag color="red">禁用</Tag> },
+    { title: '状态', dataIndex: 'status', width: 100,
+      render: (_: number, record: UserVO) => {
+        if (record.status !== 1) return <Tag color="red">禁用</Tag>;
+        if (isLocked(record)) return <Tag color="orange">已锁定</Tag>;
+        return <Tag color="green">正常</Tag>;
+      },
+    },
     { title: '创建时间', dataIndex: 'createdAt', width: 180 },
-    { title: '操作', width: 180, render: (_: any, record: UserVO) => (
+    { title: '操作', width: 240, render: (_: any, record: UserVO) => (
         <Space>
           <Button size="small" onClick={() => handleAssignRoles(record)}>角色</Button>
+          {isLocked(record) && (
+            <Button size="small" icon={<UnlockOutlined />}
+              onClick={() => handleUnlock(record.id)}>解锁</Button>
+          )}
           <Popconfirm title="确定删除？" onConfirm={() => handleDelete(record.id)}>
             <Button size="small" danger icon={<DeleteOutlined />} />
           </Popconfirm>
