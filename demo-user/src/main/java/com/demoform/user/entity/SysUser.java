@@ -5,6 +5,7 @@ import com.demoform.common.entity.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * 系统用户实体
@@ -28,4 +29,10 @@ public class SysUser extends BaseEntity {
 
     /** 密码过期日期 */
     private LocalDate passwordExpireDate;
+
+    /** 登录失败次数 */
+    private Integer loginAttempts;
+
+    /** 锁定时间（null=未锁定） */
+    private LocalDateTime lockTime;
 }

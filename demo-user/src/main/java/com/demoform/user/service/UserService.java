@@ -30,4 +30,16 @@ public interface UserService {
     void assignRoles(Long userId, RoleAssignRequest request);
 
     List<String> getUserRoleCodes(Long userId);
+
+    /** 记录登录失败，检查是否需要锁定 */
+    void recordLoginFailure(String username);
+
+    /** 重置登录失败计数（登录成功时调用） */
+    void resetLoginAttempts(String username);
+
+    /** 检查账户是否被锁定 */
+    void checkAccountLocked(String username);
+
+    /** 管理员解锁用户 */
+    void unlockUser(Long userId);
 }

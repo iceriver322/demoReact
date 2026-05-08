@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -142,5 +143,62 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<String> getUserRoleCodes(Long userId) {
         return userMapper.selectRoleCodesByUserId(userId);
+    }
+
+    @Override
+    @Transactional
+    public void recordLoginFailure(String username) {
+        SysUser user = findByUsername(username);
+        if (user == null) return;
+
+        int attempts = (user.getLoginAttempts() == null ? 0 : user.getLoginAttempts()) + 1;
+        user.setLoginAttempts(attempts);
+
+        if (attempts >= 3) {
+            user.setLockTime(LocalDateTime.now());
+        }
+
+        userMapper.updateById(user);
+    }
+
+    @Override
+    @Transactional
+    public void resetLoginAttempts(String username) {
+        SysUser user = findByUsername(username);
+        if (user == null) return;
+        user.setLoginAttempts(0);
+        user.setLockTime(null);
+        userMapper.updateById(user);
+    }
+
+    @Override
+    public void checkAccountLocked(String username) {
+        SysUser user = findByUsername(username);
+        if (user == null) return;
+
+        LocalDateTime lockTime = user.getLockTime();
+        if (lockTime != null) {
+            // 检查是否已过30分钟
+            if (lockTime.plusMinutes(30).isAfter(LocalDateTime.now())) {
+                throw new BusinessException(ResultCode.ACCOUNT_LOCKED);
+            } else {
+                // 已过30分钟，自动解锁
+                user.setLoginAttempts(0);
+                user.setLockTime(null);
+                userMapper.updateById(user);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void unlockUser(Long userId) {
+        SysUser user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(ResultCode.USER_NOT_FOUND);
+        }
+        user.setLoginAttempts(0);
+        user.setLockTime(null);
+        userMapper.updateById(user);
     }
 }

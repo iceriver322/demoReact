@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS sys_user (
     email VARCHAR(100) COMMENT '邮箱',
     status TINYINT DEFAULT 1 COMMENT '状态：1-正常 0-禁用',
     password_expire_date DATE COMMENT '密码过期日期',
+    login_attempts INT DEFAULT 0 COMMENT '登录失败次数',
+    lock_time DATETIME COMMENT '锁定时间',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted TINYINT DEFAULT 0 COMMENT '逻辑删除：0-未删除 1-已删除'
