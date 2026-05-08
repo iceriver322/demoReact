@@ -21,4 +21,7 @@ public interface FormSubmissionService {
     List<FormSubmission> exportByTemplate(Long templateId, Long userId);
 
     FormSubmission findById(Long submissionId);
+
+    /** 将提交流设置为直接提交状态（无需审批） */
+    void markAsSubmitted(Long submissionId);
 }

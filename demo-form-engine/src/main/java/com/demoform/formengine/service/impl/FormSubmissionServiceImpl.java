@@ -90,6 +90,16 @@ public class FormSubmissionServiceImpl implements FormSubmissionService {
     }
 
     @Override
+    @Transactional
+    public void markAsSubmitted(Long submissionId) {
+        FormSubmission submission = submissionMapper.selectById(submissionId);
+        if (submission != null) {
+            submission.setStatus(SubmissionStatus.SUBMITTED.name());
+            submissionMapper.updateById(submission);
+        }
+    }
+
+    @Override
     public FormSubmission findById(Long submissionId) {
         FormSubmission submission = submissionMapper.selectById(submissionId);
         if (submission == null) {
