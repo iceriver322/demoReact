@@ -63,6 +63,14 @@ public class UserController {
         return ApiResponse.success();
     }
 
+    /** 解锁用户（管理员） */
+    @PutMapping("/{id}/unlock")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Void> unlock(@PathVariable Long id) {
+        userService.unlockUser(id);
+        return ApiResponse.success();
+    }
+
     /** 修改当前用户密码 */
     @PutMapping("/change-password")
     public ApiResponse<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request,
