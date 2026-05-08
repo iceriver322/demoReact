@@ -7,5 +7,5 @@ demo-frontend/dist/
 .idea
 node_modules/
 *.log
-demo-frontend/test-results/
+test-results/
 
