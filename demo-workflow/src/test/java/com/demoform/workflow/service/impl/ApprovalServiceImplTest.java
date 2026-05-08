@@ -58,6 +58,7 @@ class ApprovalServiceImplTest {
         FormTemplate template = new FormTemplate();
         template.setId(10L);
         template.setName("员工信息表");
+        template.setSchemaJson("[{\"name\":\"name\",\"label\":\"姓名\"}]");
         when(templateMapper.selectById(10L)).thenReturn(template);
 
         List<TaskDto> result = approvalService.getPendingTasks(2L);
@@ -67,7 +68,35 @@ class ApprovalServiceImplTest {
         assertThat(dto.getTaskId()).isEqualTo("task1");
         assertThat(dto.getSubmissionData()).isEqualTo("{\"name\":\"张三\",\"age\":30}");
         assertThat(dto.getTemplateName()).isEqualTo("员工信息表");
-        assertThat(dto.getSchemaJson()).isNull();
+        assertThat(dto.getSchemaJson()).isEqualTo("[{\"name\":\"name\",\"label\":\"姓名\"}]");
+    }
+
+    @Test
+    void shouldFilterOutSelfSubmissions() {
+        Task task = mock(Task.class);
+        when(task.getId()).thenReturn("task1");
+
+        TaskQuery taskQuery = mock(TaskQuery.class);
+        when(taskQuery.initializeFormKeys()).thenReturn(taskQuery);
+        when(taskQuery.list()).thenReturn(List.of(task));
+        when(taskService.createTaskQuery()).thenReturn(taskQuery);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("submissionId", 1);
+        when(taskService.getVariables("task1")).thenReturn(variables);
+
+        FormSubmission submission = new FormSubmission();
+        submission.setId(1L);
+        submission.setTemplateId(10L);
+        submission.setSubmitterId(1L);
+        submission.setDataJson("{\"name\":\"张三\",\"age\":30}");
+        submission.setStatus("PENDING");
+        when(submissionMapper.selectById(1L)).thenReturn(submission);
+
+        // userId matches submitterId → should be filtered out
+        List<TaskDto> result = approvalService.getPendingTasks(1L);
+
+        assertThat(result).isEmpty();
     }
 
     @Test

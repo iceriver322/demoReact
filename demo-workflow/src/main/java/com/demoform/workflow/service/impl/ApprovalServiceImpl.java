@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -113,7 +114,7 @@ public class ApprovalServiceImpl implements ApprovalService {
                         FormSubmission submission = submissionMapper.selectById(submissionId);
                         if (submission != null) {
                             // 过滤：跳过当前用户自己的提交
-                            if (submission.getSubmitterId().equals(userId)) {
+                            if (Objects.equals(submission.getSubmitterId(), userId)) {
                                 return null;
                             }
                             submissionData = submission.getDataJson();
@@ -135,7 +136,7 @@ public class ApprovalServiceImpl implements ApprovalService {
                             .schemaJson(schemaJson)
                             .build();
                 })
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
