@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Table, Button, Space, message, Modal, Input } from 'antd';
-import { CheckOutlined, CloseOutlined, EyeOutlined } from '@ant-design/icons';
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { approvalApi, TaskDto } from '../api/approval';
+import SubmissionDataDisplay from '../components/SubmissionDataDisplay';
 
 const ApprovalPage: React.FC = () => {
   const [data, setData] = useState<TaskDto[]>([]);
   const [loading, setLoading] = useState(false);
-  const [detailVisible, setDetailVisible] = useState(false);
-  const [detailJson, setDetailJson] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<TaskDto | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -23,6 +24,7 @@ const ApprovalPage: React.FC = () => {
     try {
       await approvalApi.approve(submissionId);
       message.success('已批准');
+      setModalVisible(false);
       load();
     } catch (err: any) { message.error(err.message || '操作失败'); }
   };
@@ -35,60 +37,64 @@ const ApprovalPage: React.FC = () => {
         const el = document.getElementById('reject-reason') as HTMLTextAreaElement;
         await approvalApi.reject(submissionId, el?.value);
         message.success('已驳回');
+        setModalVisible(false);
         load();
       },
     });
   };
 
-  const showDetail = (json: string) => {
-    try {
-      const parsed = JSON.parse(json);
-      setDetailJson(JSON.stringify(parsed, null, 2));
-    } catch {
-      setDetailJson(json);
-    }
-    setDetailVisible(true);
+  const showDetail = (record: TaskDto) => {
+    setSelectedTask(record);
+    setModalVisible(true);
   };
+
+  const submissionId = selectedTask ? Number(selectedTask.variables?.submissionId) : null;
 
   const columns = [
     { title: '表单名称', dataIndex: 'templateName', width: 160 },
     { title: '任务名称', dataIndex: 'name', width: 120 },
     { title: '创建时间', dataIndex: 'createTime', width: 180 },
-    {
-      title: '审批数据', width: 120,
-      render: (_: any, record: TaskDto) =>
-        record.submissionData ? (
-          <Button type="link" size="small" icon={<EyeOutlined />}
-            onClick={() => showDetail(record.submissionData!)}>查看数据</Button>
-        ) : '-',
-    },
-    { title: '操作', width: 180, render: (_: any, record: TaskDto) => {
-        const submissionId = Number(record.variables?.submissionId);
-        return (
-        <Space>
-          <Button type="primary" size="small" icon={<CheckOutlined />}
-            onClick={() => handleApprove(submissionId)}>批准</Button>
-          <Button danger size="small" icon={<CloseOutlined />}
-            onClick={() => handleReject(submissionId)}>驳回</Button>
-        </Space>
-      );
-    }},
   ];
 
   return (
     <div>
       <h3 style={{ marginBottom: 16 }}>待审批列表</h3>
-      <Table columns={columns} dataSource={data} rowKey="taskId" loading={loading} pagination={false} />
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="taskId"
+        loading={loading}
+        pagination={false}
+        onRow={(record) => ({
+          onClick: () => showDetail(record),
+          style: { cursor: 'pointer' },
+        })}
+      />
       <Modal
-        title="审批数据详情"
-        open={detailVisible}
-        onCancel={() => setDetailVisible(false)}
-        footer={<Button onClick={() => setDetailVisible(false)}>关闭</Button>}
+        title="审批详情"
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
         width={640}
+        footer={
+          submissionId ? (
+            <Space>
+              <Button type="primary" icon={<CheckOutlined />}
+                onClick={() => handleApprove(submissionId)}>通过</Button>
+              <Button danger icon={<CloseOutlined />}
+                onClick={() => handleReject(submissionId)}>拒绝</Button>
+              <Button onClick={() => setModalVisible(false)}>关闭</Button>
+            </Space>
+          ) : null
+        }
       >
-        <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: 16, borderRadius: 4, maxHeight: 480, overflow: 'auto' }}>
-          {detailJson}
-        </pre>
+        {selectedTask && selectedTask.schemaJson && selectedTask.submissionData ? (
+          <SubmissionDataDisplay
+            schemaJson={selectedTask.schemaJson}
+            dataJson={selectedTask.submissionData}
+          />
+        ) : (
+          <p>暂无数据</p>
+        )}
       </Modal>
     </div>
   );

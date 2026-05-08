@@ -8,6 +8,7 @@ export interface TaskDto {
   variables: Record<string, any>;
   submissionData?: string;
   templateName?: string;
+  schemaJson?: string;
 }
 
 export const approvalApi = {
