@@ -10,11 +10,11 @@ import type { FormField } from '../types/form';
 import dayjs from 'dayjs';
 
 const statusColor: Record<string, string> = {
-  PENDING: 'orange', APPROVED: 'green', REJECTED: 'red',
+  PENDING: 'orange', APPROVED: 'green', REJECTED: 'red', SUBMITTED: 'blue',
 };
 
 const statusText: Record<string, string> = {
-  PENDING: '待审批', APPROVED: '已通过', REJECTED: '已驳回',
+  PENDING: '待审批', APPROVED: '已通过', REJECTED: '已驳回', SUBMITTED: '已提交',
 };
 
 const FormSubmitPage: React.FC = () => {
@@ -129,7 +129,7 @@ const FormSubmitPage: React.FC = () => {
       setModalLoading(true);
       const formatted = formatValues(values, schemaFields);
       await formSubmissionApi.submit(Number(id!), JSON.stringify(formatted));
-      message.success('提交成功，待审批后生效');
+      message.success('提交成功');
       setModalVisible(false);
       form.resetFields();
       loadData();

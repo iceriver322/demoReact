@@ -3,7 +3,7 @@ import { Table, Tag } from 'antd';
 import { formSubmissionApi, FormSubmission } from '../api/form';
 
 const statusColor: Record<string, string> = {
-  PENDING: 'orange', APPROVED: 'green', REJECTED: 'red',
+  PENDING: 'orange', APPROVED: 'green', REJECTED: 'red', SUBMITTED: 'blue',
 };
 
 const MySubmissionsPage: React.FC = () => {
