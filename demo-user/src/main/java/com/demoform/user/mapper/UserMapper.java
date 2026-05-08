@@ -30,4 +30,7 @@ public interface UserMapper extends BaseMapper<SysUser> {
     /** 更新密码过期日期 */
     int updatePasswordExpireDate(@Param("userId") Long userId,
                                   @Param("expireDate") java.time.LocalDate expireDate);
+
+    /** 重置登录锁定状态（login_attempts=0, lock_time=NULL） */
+    int resetLoginLock(@Param("userId") Long userId);
 }

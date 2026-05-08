@@ -166,9 +166,9 @@ public class UserServiceImpl implements UserService {
     public void resetLoginAttempts(String username) {
         SysUser user = findByUsername(username);
         if (user == null) return;
+        userMapper.resetLoginLock(user.getId());
         user.setLoginAttempts(0);
         user.setLockTime(null);
-        userMapper.updateById(user);
     }
 
     @Override
@@ -183,9 +183,9 @@ public class UserServiceImpl implements UserService {
                 throw new BusinessException(ResultCode.ACCOUNT_LOCKED);
             } else {
                 // 已过30分钟，自动解锁
+                userMapper.resetLoginLock(user.getId());
                 user.setLoginAttempts(0);
                 user.setLockTime(null);
-                userMapper.updateById(user);
             }
         }
     }
@@ -197,8 +197,8 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             throw new BusinessException(ResultCode.USER_NOT_FOUND);
         }
+        userMapper.resetLoginLock(user.getId());
         user.setLoginAttempts(0);
         user.setLockTime(null);
-        userMapper.updateById(user);
     }
 }

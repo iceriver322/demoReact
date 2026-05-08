@@ -6,6 +6,7 @@
     <!-- 根据用户名查询（忽略逻辑删除标记，用于注册时检查用户名唯一性） -->
     <select id="selectByUsername" resultType="com.demoform.user.entity.SysUser">
         SELECT id, username, password, email, status, password_expire_date,
+               login_attempts, lock_time,
                created_at, updated_at, deleted
         FROM sys_user
         WHERE username = #{username}
@@ -42,6 +43,13 @@
     <update id="updatePasswordExpireDate">
         UPDATE sys_user
         SET password_expire_date = #{expireDate}, updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{userId}
+    </update>
+
+    <!-- 重置登录锁定状态 -->
+    <update id="resetLoginLock">
+        UPDATE sys_user
+        SET login_attempts = 0, lock_time = NULL, updated_at = CURRENT_TIMESTAMP
         WHERE id = #{userId}
     </update>
 </mapper>
