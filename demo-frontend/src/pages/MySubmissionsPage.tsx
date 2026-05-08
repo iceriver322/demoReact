@@ -5,6 +5,9 @@ import { formSubmissionApi, FormSubmission } from '../api/form';
 const statusColor: Record<string, string> = {
   PENDING: 'orange', APPROVED: 'green', REJECTED: 'red', SUBMITTED: 'blue',
 };
+const statusText: Record<string, string> = {
+  PENDING: '待审批', APPROVED: '已通过', REJECTED: '已驳回', SUBMITTED: '已提交',
+};
 
 const MySubmissionsPage: React.FC = () => {
   const [data, setData] = useState<FormSubmission[]>([]);
